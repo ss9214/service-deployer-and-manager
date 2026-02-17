@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  setup:
+    build:
+      context: ./docker/setup
+      dockerfile: Dockerfile
+    volumes:
+      - ./config:/workspace/config
+      - ./terraform:/workspace/terraform
+      - ./deployments:/workspace/deployments
+    environment:
+      - WORKSPACE=/workspace
+    stdin_open: true
+    tty: true
+
+  # Management Platform services (optional - for monitoring deployed services)
+  # Uncomment to use the web dashboard
+  # platform:
+  #   build:
+  #     context: ./Management Platform
+  #     dockerfile: docker/platform/Dockerfile
+  #   ports:
+  #     - "3000:3000"
+  #     - "8080:8080"
+  #   volumes:
+  #     - ./config:/app/config:ro
+  #     - ./deployments:/app/deployments
+  #   environment:
+  #     - CONFIG_PATH=/app/config/user_config.yaml
+  #   depends_on:
+  #     - postgres
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=deployer
+      - POSTGRES_USER=deployer
+      - POSTGRES_PASSWORD=deployer_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
